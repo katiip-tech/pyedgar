@@ -152,6 +152,10 @@ class EDGARCacher(object):
                 try:
                     nc_file = tar.extractfile(tarinfo)
                 except IOError:
+                    self._logger.warning("\tCould not extract %r (%r/%r extracted)", tarinfo.name, i_done, i_tot)
+                    continue
+                except Exception as e:
+                    self._logger.error("\tUnhandled exception while extracting tar file at %r: %r", tarinfo.name, e)
                     continue
 
                 # At this point, we have a file, and we have an accession.
@@ -172,6 +176,9 @@ class EDGARCacher(object):
                 except WrongFormType:
                     # This only triggers if self.keep_regex is set.
                     continue
+                except Exception as e:
+                    self._logger.error("\tUnhandled exception while handling nc file at %r: %r", tarinfo.name, e)
+                    continue
 
                 try:
                     nc_text = nc_dict.pop("doc")
@@ -188,6 +195,9 @@ class EDGARCacher(object):
                     self._logger.warning(
                         "\tNo document item extracted from %r (%r/%r extracted)", tarinfo.name, i_done, i_tot
                     )
+                    continue
+                except Exception as e:
+                    self._logger.error("\tUnhandled exception while extracting document from nc file at %r: %r", tarinfo.name, e)
                     continue
 
                 # Get local nc file path. Accession is nc file filename.
